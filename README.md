@@ -34,3 +34,10 @@ Having played with the primitives.py a little with a handful of .d64 files to sa
 4. add logic to deal with .d81 images - I have a few that the current primitives.py doesn't know what to do with
 
 Although I wouldn't expect to get a C&D for sharing .d64/.d81 files here, I'm not gonna take the chance; disc images will _not_ be included in this repo.
+
+## Changelog things
+
+Although a separate changelog is probably a good idea if/when I spend a bunch of time with this, I'm happy to tack things here for now.
+
+2026-05-17@1238 - I updated the pylsecrets_sample.py to include value/key pairs as a "just in case" thing for myself. Unlikely that this thing will ever send emails, but it's a simple copypasta from [lights](https://github.com/kenkl/lights) and [certcheckweb](https://github.com/kenkl/certcheckweb) versions; I'll clean this up later.
+
