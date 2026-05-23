@@ -15,4 +15,5 @@ test.py
 *.zip
 *.tar.gz
 *.log
+*.csv
 scratchpad.txt

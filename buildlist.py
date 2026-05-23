@@ -23,13 +23,15 @@ def petscii_to_ascii(data):
     return "".join([chr(b) if 32 <= b <= 126 else "." for b in data]).strip()
 
 def read_d64_directory(file_path):
+    directory_entries = ""
+
     with open(file_path, "rb") as f:
         # 1. Get Disk Name (Track 18, Sector 0, Offset 144)
         f.seek(get_sector_offset(18, 0) + 144)
         disk_name = petscii_to_ascii(f.read(16))
-        print(f"--- DISK NAME: {disk_name} ---")
-        print(f"{'Type':<6} {'Size (Blocks)':<15} {'Filename'}")
-        print("-" * 40)
+        #print(f"--- DISK NAME: {disk_name} ---")
+        #print(f"{'Type':<6} {'Size (Blocks)':<15} {'Filename'}")
+        #print("-" * 40)
 
         # 2. Iterate through Directory Sectors (Track 18, Sectors 1-18)
         current_track, current_sector = 18, 1
@@ -58,10 +60,12 @@ def read_d64_directory(file_path):
                 filename = petscii_to_ascii(entry[5:21])
                 blocks = struct.unpack("<H", entry[30:32])[0]
 
-                print(f"{file_type:<6} {blocks:<15} {filename}")
+                #print(f"{file_type:<6} {blocks:<15} {filename}")
+                directory_entries += f"{file_type:<6} {blocks:<15} {filename}\n"
 
             current_track, current_sector = next_track, next_sector
-
+        return file_path, disk_name, directory_entries
+    
 def get_all_d64_files():
     """Walks the current directory and subdirectories to find all .d64 files."""
     import os
@@ -72,10 +76,34 @@ def get_all_d64_files():
                 d64_files.append(os.path.join(root, file))
     return d64_files
 
+def build_csv():
+    """Builds a CSV file containing directory listings for all .d64 files found."""
+    import csv
+    csvfilename="d64_files.csv"
+    d64count = 0
+
+    d64_files = get_all_d64_files()
+    with open(csvfilename, "w", newline='') as csvfile:
+        fieldnames = ['File Path', 'Disk Name', 'Directory Entries']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        
+        for d64_file in d64_files:
+            d64count += 1
+            print (d64_file)
+            file_path, disk_name, directory_entries = read_d64_directory(d64_file)
+            writer.writerow({
+                'File Path': file_path,
+                'Disk Name': disk_name,
+                'Directory Entries': directory_entries
+            })
+    print(f"Processed {d64count} .d64 files. Directory listings saved to {csvfilename}.")
+
 # Usage
 # read_d64_directory("your_game_disk.d64")
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python buildlist.py <d64_file>")
-        sys.exit(1)
-    read_d64_directory(sys.argv[1])
+    # if len(sys.argv) != 2:
+    #     print("Usage: python buildlist.py <d64_file>")
+    #     sys.exit(1)
+    # read_d64_directory(sys.argv[1])
+    build_csv()
