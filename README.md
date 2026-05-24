@@ -16,7 +16,7 @@ Skip forward to present day... [EmulationStation](https://emulationstation.org/)
 
 ## Enter "AI"
 
-A number of my coworkers have been seduced by "AI" tools to build code, and frequently proselytize the wonders of using Grok, Gemini, Ollama, etc. for letting them, as non-coders, craft interesting/useful things. Feeling a lack of inspiration, one of them advised identifying "pain points" as a thing to point the various tools at to construct things that would lessen the pain. Slogging through a few hundred megs of .d64 files qualifies, I think.
+A number of my coworkers have been seduced by "AI" tools to build code, and frequently proselytize the wonders of using Grok, Gemini, Ollama, etc. for letting them, as non-coders, craft interesting/useful things. Feeling a lack of inspiration, one of them advised identifying "pain points" as a thing to point the various tools at to construct things that would lessen the pain. Slogging through a few hundred .d64 files qualifies, I think.
 
 I know Python well enough, maybe I could get one of the engines to give me a starting-point for this project. Asking Gemma4 (running in Ollama locally), I asked "can we construct a Python script to retrieve the directory/contents of .d64 (for Commodore 64/128) disc images?" After a couple minutes, it spat out some primitives (primitives.py) that gave me a starting point for decoding the directories on the .d64 files I've had hanging around for over a decade.
 
@@ -41,6 +41,12 @@ Although a separate changelog is probably a good idea if/when I spend a bunch of
 
 2026-05-17@1238 - I updated the pylsecrets_sample.py to include value/key pairs as a "just in case" thing for myself. Unlikely that this thing will ever send emails, but it's a simple copypasta from [lights](https://github.com/kenkl/lights) and [certcheckweb](https://github.com/kenkl/certcheckweb) versions; I'll clean this up later.
 
-2026-05-22@2034 - I added buildlist.py to grind through a directory structure, parsing all the .d64 files found there, and spitting the contents into a .csv file. It occurred to me that a database was probably overkill; this list will be static. I'd briefly thought about using openpyxl to natively create an .xlsx, but realised - I really only need a .csv to do what I'm after here, so.
+2026-05-23@2034 - I added buildlist.py to grind through a directory structure, parsing all the .d64 files found there, and spitting the contents into a .csv file. It occurred to me that a database was probably overkill; this list will be static. I'd briefly thought about using openpyxl to natively create an .xlsx, but realised - I really only need a .csv to do what I'm after here, so.
 
 Anyway, that was easy enough to put together (see build_csv()) some bits to do just that, but after grinding through a couple dozen .d64 files, my code breaks during parsing file_type (line 59) with an IndexError exception. Probably will put things in try/except block(s) to fail a little more... gracefully.
+
+2026-05-24@1204 - Added dir.py to examine/troubleshoot individual .d64 files as they break the run that buildlist.py does while grinding through the files it found.
+
+That lead to adding some try/except blocks to move forward (and produce otherwise useable output) when errors (corrupt .d64 files?) occur.
+
+@1232 - still running into a few .d64 files that are corrupt or broken in some more mysterious fashion (I'm gonna have to pull them into VICE to see what it can make of them), causing read_d64_directory() to get caught in a tight loop (100% CPU) until I break out. I've taken to moving the broken images to a 'scuffed' subdirectory. I've added a check for that in get_all_d64_files() to skip the contents of that subdirectory so they just don't get scanned at all.

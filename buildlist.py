@@ -29,16 +29,17 @@ def read_d64_directory(file_path):
         # 1. Get Disk Name (Track 18, Sector 0, Offset 144)
         f.seek(get_sector_offset(18, 0) + 144)
         disk_name = petscii_to_ascii(f.read(16))
-        #print(f"--- DISK NAME: {disk_name} ---")
-        #print(f"{'Type':<6} {'Size (Blocks)':<15} {'Filename'}")
-        #print("-" * 40)
 
         # 2. Iterate through Directory Sectors (Track 18, Sectors 1-18)
         current_track, current_sector = 18, 1
         
         while current_track != 0:
-            f.seek(get_sector_offset(current_track, current_sector))
-            sector_data = f.read(256)
+            try:
+                f.seek(get_sector_offset(current_track, current_sector))
+                sector_data = f.read(256)
+            except Exception as e:
+                print(f"Error reading sector {current_track}/{current_sector}: {e}")
+                break
             
             # The first two bytes point to the next track/sector of the directory
             next_track = sector_data[0]
@@ -56,9 +57,15 @@ def read_d64_directory(file_path):
                 # Parse file metadata
                 # Types: 0=DEL, 1=SEQ, 2=PRG, 3=USR, 4=REL
                 types = ["DEL", "SEQ", "PRG", "USR", "REL"]
-                file_type = types[file_type_raw & 0x07]
-                filename = petscii_to_ascii(entry[5:21])
-                blocks = struct.unpack("<H", entry[30:32])[0]
+                try:
+                    file_type = types[file_type_raw & 0x07]
+                    filename = petscii_to_ascii(entry[5:21])
+                    blocks = struct.unpack("<H", entry[30:32])[0]
+                except IndexError:
+                    file_type = "UNK"
+                    filename = "UNKNOWN"
+                    blocks = 0
+
 
                 #print(f"{file_type:<6} {blocks:<15} {filename}")
                 directory_entries += f"{file_type:<6} {blocks:<15} {filename}\n"
@@ -71,6 +78,9 @@ def get_all_d64_files():
     import os
     d64_files = []
     for root, dirs, files in os.walk("."):
+        # Exclude 'scuffed' directory if it exists
+        if 'scuffed' in dirs:
+            dirs.remove('scuffed')
         for file in files:
             if file.lower().endswith(".d64"):
                 d64_files.append(os.path.join(root, file))
@@ -102,8 +112,4 @@ def build_csv():
 # Usage
 # read_d64_directory("your_game_disk.d64")
 if __name__ == "__main__":
-    # if len(sys.argv) != 2:
-    #     print("Usage: python buildlist.py <d64_file>")
-    #     sys.exit(1)
-    # read_d64_directory(sys.argv[1])
     build_csv()
