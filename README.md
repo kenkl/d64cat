@@ -22,7 +22,7 @@ I know Python well enough, maybe I could get one of the engines to give me a sta
 
 While I have a general distrust/distaste for "AI" tools, I do feel the appeal of becoming a Doctorow-esque [centaur](https://pluralistic.net/2025/05/27/rancid-vibe-coding/#class-war) - solving a decades-old problem of my own making.
 
-So yes - while parts of this little project are "vibe coded", I admit it, parts won't need to be. 
+So yes - while parts of this little project are "vibe coded", I admit it, much of it won't need to be. 
 
 ## Goals
 
@@ -41,3 +41,6 @@ Although a separate changelog is probably a good idea if/when I spend a bunch of
 
 2026-05-17@1238 - I updated the pylsecrets_sample.py to include value/key pairs as a "just in case" thing for myself. Unlikely that this thing will ever send emails, but it's a simple copypasta from [lights](https://github.com/kenkl/lights) and [certcheckweb](https://github.com/kenkl/certcheckweb) versions; I'll clean this up later.
 
+2026-05-22@2034 - I added buildlist.py to grind through a directory structure, parsing all the .d64 files found there, and spitting the contents into a .csv file. It occurred to me that a database was probably overkill; this list will be static. I'd briefly thought about using openpyxl to natively create an .xlsx, but realised - I really only need a .csv to do what I'm after here, so.
+
+Anyway, that was easy enough to put together (see build_csv()) some bits to do just that, but after grinding through a couple dozen .d64 files, my code breaks during parsing file_type (line 59) with an IndexError exception. Probably will put things in try/except block(s) to fail a little more... gracefully.
